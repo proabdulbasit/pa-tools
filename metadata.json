@@ -1,0 +1,7 @@
+{
+  "name": "copy test for testing",
+  "description": "A comprehensive car inspection tool for professional and personal use, featuring detailed checklists, photo evidence, and instant PDF/JSON reporting.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
