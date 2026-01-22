@@ -1,10 +1,13 @@
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from './contexts/AuthContext';
 import VehicleInfoForm from './components/VehicleInfoForm';
 import InspectionSectionCard from './components/InspectionSectionCard';
 import KabaleboModule from './components/KabaleboModule';
 import { VehicleInfo, InspectionSection, InspectionReport, InspectionItem, VehicleStatus, RatingCode } from './types';
 import { INITIAL_SECTIONS, STATUS_CODES, DAMAGE_CODES } from './constants';
+import { LogOut } from 'lucide-react';
 
 type Tab = 'home' | 'inspect' | 'kabalebo';
 type InspectView = 'form' | 'inventory';
@@ -22,13 +25,15 @@ const USERS: User[] = [
 ];
 
 const App: React.FC = () => {
+  const { user, profile, signOut } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<Tab>('home');
   const [inspectView, setInspectView] = useState<InspectView>('form');
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [status, setStatus] = useState<string>('');
   const [hasDraft, setHasDraft] = useState(false);
   
-  // Security State
+  // Security State (PIN-based for inspect feature)
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [pinInput, setPinInput] = useState('');
   const [pinError, setPinError] = useState(false);
@@ -54,6 +59,11 @@ const App: React.FC = () => {
     setStatus('Afgemeld');
     setTimeout(() => setStatus(''), 2000);
   }, [activeTab]);
+
+  const handleSupabaseLogout = async () => {
+    await signOut();
+    navigate('/login');
+  };
 
   // Timer & Activity Logic (Only for Inspect Session)
   useEffect(() => {
@@ -347,12 +357,27 @@ const App: React.FC = () => {
                   {tab === 'inspect' ? 'AutoInspect' : tab === 'kabalebo' ? 'Kabalebo' : tab}
                 </button>
               ))}
+              {user && (
+                <div className="flex items-center gap-2 ml-2 pl-2 border-l border-slate-200">
+                  <span className="text-xs text-slate-600 font-medium hidden sm:block">
+                    {profile?.display_name || user.email?.split('@')[0]}
+                  </span>
+                  <button
+                    onClick={handleSupabaseLogout}
+                    className="px-3 md:px-5 py-2 rounded-full font-bold transition-all text-[11px] md:text-sm bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-100 flex items-center gap-2"
+                    title="Logout"
+                  >
+                    <LogOut className="w-3 h-3 md:w-4 md:h-4" />
+                    <span className="hidden sm:inline">Logout</span>
+                  </button>
+                </div>
+              )}
               {currentUser && (
                 <button
                   onClick={handleSignOut}
-                  className="px-3 md:px-5 py-2 rounded-full font-bold transition-all text-[11px] md:text-sm bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-100"
+                  className="px-3 md:px-5 py-2 rounded-full font-bold transition-all text-[11px] md:text-sm bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-100"
                 >
-                  Afmelden
+                  Afmelden (PIN)
                 </button>
               )}
             </div>

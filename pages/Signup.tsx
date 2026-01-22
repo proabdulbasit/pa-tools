@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
@@ -14,9 +14,25 @@ export default function Signup() {
   const [displayName, setDisplayName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { signUp } = useAuth();
+  const { signUp, user, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (!authLoading && user) {
+      navigate('/home', { replace: true });
+    }
+  }, [user, authLoading, navigate]);
+
+  // Show loading state while checking auth
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,10 +77,7 @@ export default function Signup() {
         <div className="bg-card border border-border rounded-2xl p-8 shadow-card">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                <span className="font-display font-bold text-primary">PA</span>
-              </div>
+            <div className="mb-4">
               <span className="font-display text-xl font-bold text-foreground">PA-Tools</span>
             </div>
             <h1 className="text-2xl font-display font-bold text-foreground mb-2">Create account</h1>
@@ -121,10 +134,14 @@ export default function Signup() {
               <p className="text-xs text-muted-foreground">Minimum 6 characters</p>
             </div>
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button 
+              type="submit" 
+              className="w-full bg-slate-900 text-white hover:bg-slate-800 font-semibold py-3 rounded-lg shadow-sm" 
+              disabled={isLoading}
+            >
               {isLoading ? (
                 <span className="flex items-center gap-2">
-                  <span className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-primary-foreground"></span>
+                  <span className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></span>
                   Creating account...
                 </span>
               ) : (
