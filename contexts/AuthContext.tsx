@@ -105,16 +105,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signUp = async (email: string, password: string, displayName?: string) => {
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: window.location.origin,
+        // Remove emailRedirectTo to disable email sending
+        // Email confirmation should be disabled in Supabase Dashboard
+        // Dashboard: Authentication > Providers > Email > Confirm email (toggle OFF)
         data: {
           display_name: displayName,
         },
       },
     });
+    
+    // If signup succeeds but email confirmation is required, auto-sign in the user
+    // This works if email confirmation is disabled in Supabase Dashboard
+    if (data?.user && !error) {
+      // User is created, session will be available if email confirmation is disabled
+      return { error: null };
+    }
+    
     return { error };
   };
 

@@ -14,7 +14,7 @@ export default function Signup() {
   const [displayName, setDisplayName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { signUp, user, isLoading: authLoading } = useAuth();
+  const { signUp, user, isLoading: authLoading, session } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -58,11 +58,25 @@ export default function Signup() {
       });
       setIsLoading(false);
     } else {
-      toast({
-        title: 'Account created!',
-        description: 'Welcome to PA-Tools. You can now sign in.',
-      });
-      navigate('/login');
+      // If email confirmation is disabled in Supabase, user will be auto-signed in
+      // Check after a brief delay for auth state to update
+      setTimeout(() => {
+        setIsLoading(false);
+        // AuthContext will update user/session automatically if email confirmation is disabled
+        if (session || user) {
+          toast({
+            title: 'Account created!',
+            description: 'Welcome to PA-Tools. You are now signed in.',
+          });
+          navigate('/home');
+        } else {
+          toast({
+            title: 'Account created!',
+            description: 'Welcome to PA-Tools. You can now sign in.',
+          });
+          navigate('/login');
+        }
+      }, 1000);
     }
   };
 

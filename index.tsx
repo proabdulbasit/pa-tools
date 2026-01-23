@@ -6,8 +6,8 @@ import { AuthProvider } from './contexts/AuthContext';
 import { Toaster } from './components/ui/toaster';
 import App from './App';
 import Login from './pages/Login';
-import Signup from './pages/Signup';
 import { ProtectedRoute } from './components/ProtectedRoute';
+// import Signup from './pages/Signup';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -22,7 +22,8 @@ root.render(
         <Toaster />
         <Routes>
           <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
+          <Route path="/signup" element={<Navigate to="/login" replace />} />
+          {/* <Route path="/signup" element={<Signup />} /> */}
           <Route 
             path="/*" 
             element={
