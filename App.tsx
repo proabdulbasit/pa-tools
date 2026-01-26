@@ -443,7 +443,7 @@ const App: React.FC = () => {
           </div>
         )}
 
-        {/* AUTH GATE ONLY FOR INSPECT */}
+        {/* AUTH GATE ONLY FOR INSPECT. */}
         {activeTab === 'inspect' && !currentUser && <AuthOverlay />}
 
         {activeTab === 'inspect' && currentUser && (
